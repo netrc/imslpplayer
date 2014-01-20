@@ -4,4 +4,9 @@ body {
 
 .composerName {
   font-family: 'Eagle Lake',cursive;
+  cursor:pointer;
+}
+.recordingName {
+  font-family: 'Eagle Lake',cursive;
+  cursor:pointer;
 }

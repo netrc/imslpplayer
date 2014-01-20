@@ -11,7 +11,10 @@ block pagecontent
     div.span7
       h3(data-bind="text: mainComposerName")
       ul.unstyled(data-bind="foreach: recordingList")
-        li(data-bind="text: name")
+        li.recordingName
+          span.glyphicon.glyphicon-star
+          br
+          span(data-bind="text: name")
 
 block pagescript
   script.
