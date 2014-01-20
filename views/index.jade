@@ -1,0 +1,60 @@
+extends layout
+
+block pagecontent
+  div.row
+    div.span1
+    div.span3
+      input
+      br
+      ul.unstyled(data-bind="foreach: composerNames")
+        li.composerName(data-bind="text: name, click: $parent.selectComposer")
+    div.span7
+      h3(data-bind="text: mainComposerName")
+      ul.unstyled(data-bind="foreach: recordingList")
+        li(data-bind="text: name")
+
+block pagescript
+  script.
+    var doComposers = function() { 
+      console.log("docomposers");
+      $.get('/rest/Composers', {}, function(s,tstatus,jxhr) { 
+        console.log("gRC:"+s);
+        var d = JSON.parse(s);
+        console.log("gRC: " + d['name'] + " lastsuccess: " + d.lastsuccess);
+        cList = d.results.collection1;
+        //cList.forEach(function(c){ $("#cList").append("<p>"+c.composerName.text+"</p>"); });
+      });
+    };
+    
+    var viewModel = function(){
+      var self = this;
+      self.composerNames = ko.observableArray([ {name:"retrieving..."}]);
+      self.mainComposerName = ko.observable("");
+      self.recordingList = ko.observableArray([]);
+      self.selectComposer = function(item) {
+          item.selected = !item.selected;//toggle the selected boolean
+          console.log("selectComposer:" + item.name + " uname:"+item.uname);
+          self.mainComposerName(item.name);
+          self.recordingList( [{name:"retrieving..."}]);
+          $.get('/rest/Recordings/'+item.uname, {}, function(s,tstatus,jxhr) { 
+            var d = JSON.parse(s);
+            var rList = d.results.collection1;
+            console.log("vm gRRL rlist[0].property1.test:" + rList[0].property1.text);
+            var t = rList.map(function(r){ return {name: r.property1.text, href: r.property1.href}; } );
+            console.log("vm gRRL t[0].name:" + t[0].name + " l:"+t.length);
+            self.recordingList( t );
+            //self.recordingList( rList.map(function(r){ return {name: r.property1.text, href: r.property1.href}; } ) );
+          });
+      };
+      $.get('/rest/Composers', {}, function(s,tstatus,jxhr) { 
+        var d = JSON.parse(s);
+        console.log("vm gRC  d: " + d['name'] + " lastsuccess: " + d.lastsuccess);
+        var cList = d.results.collection1;
+        console.log("vm gRC clist[1].composerName:" + cList[1].composerName);
+        self.composerNames( cList.map(function(c){ return {name: c.composerName.text, uname: c.composerName.text.replace(" ","_")}; } ) );
+        });
+    };
+    
+    $(document).ready(function(){
+      ko.applyBindings(new viewModel());
+    });
