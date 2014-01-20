@@ -4,7 +4,7 @@ block pagecontent
   div.row
     div.span1
     div.span3
-      input
+      input(data-bind='value: inputFilter, valueUpdate: "afterkeydown"')
       br
       ul.unstyled(data-bind="foreach: composerNames")
         li.composerName(data-bind="text: name, click: $parent.selectComposer")
@@ -29,6 +29,7 @@ block pagescript
     var viewModel = function(){
       var self = this;
       self.composerNames = ko.observableArray([ {name:"retrieving..."}]);
+      self.inputFilter = ko.observable("");
       self.mainComposerName = ko.observable("");
       self.recordingList = ko.observableArray([]);
       self.selectComposer = function(item) {
@@ -45,6 +46,9 @@ block pagescript
             self.recordingList( t );
             //self.recordingList( rList.map(function(r){ return {name: r.property1.text, href: r.property1.href}; } ) );
           });
+      };
+      self.inputFilter.subscribe = function(x) {
+        console.log("iF x: "+x);
       };
       $.get('/rest/Composers', {}, function(s,tstatus,jxhr) { 
         var d = JSON.parse(s);
